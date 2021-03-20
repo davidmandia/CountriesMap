@@ -51,7 +51,7 @@
                     ${Math.floor(result['data']['weather']['main']['temp'] - 273)} &#8451; `
 
     
-                   let info = ` <h2>${result['data']['name']}</h2>
+                   var info = ` <h2>${result['data']['name']}</h2>
                    <img style="width:100px; height: 100px;" alt="${result['data']['name']}" src="${result['data']['flag']}" /><br />
                   Capital City: ${result['data']['capital']}<br />
                    Population: ${result['data']['population']}<br />
@@ -65,10 +65,11 @@
     
                
 
-            console.log(info);
+            
     
                 }
-            
+
+              
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 // your error code
@@ -78,6 +79,15 @@
     
     
     });
+
+    var infoAvail;
+    function getInfo(){
+        console.log(info);
+        infoAvail = info;
+    }
+
+    getInfo();
+
 
 
 
@@ -107,26 +117,20 @@
                    for(let i = 0; i < allCountries.length; i++){
                        
                        if(allCountries[i]['properties']['iso_a3'] == country){
-                        L.geoJSON(allCountries[i]).addTo(mymap);
+                        
                         console.log(allCountries[i]);
 
 
-                         //bounds for the map not working
+                         //bounds for 
 
-
-                        /*let coordinates = allCountries[i]['geometry']['coordinates'];
-                          
-                          let bound1 = coordinates[0][0][0];
-                          let bound2 = coordinates[coordinates.length - 1][coordinates[coordinates.length - 1].length - 1][0];
-                          console.log(coordinates);
-                            console.log(bound1);
-                            console.log(bound2);
-                                           
-                          
-
-                           mymap.fitBounds([bound1, bound2]);
-                           */
-
+                         let countryFeature = L.geoJSON(allCountries[i]).addTo(mymap);
+                         let countryCenter = countryFeature.getBounds().getCenter();
+                         console.log(countryCenter);
+                         mymap.fitBounds(countryFeature.getBounds());
+                         var popup = L.popup()
+                         .setLatLng(countryCenter)
+                         .setContent(info)
+                         .openOn(mymap);
 
 
 
