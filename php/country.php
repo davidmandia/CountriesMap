@@ -70,6 +70,27 @@ $url = 'https://restcountries.eu/rest/v2/alpha/' .$_REQUEST['code'];
 
 	header('Content-Type: application/json; charset=UTF-8');
 
+
+	//Api to file for the right country geoJson data
+
+	
+
+	$countries = file_get_contents('../countryBorders.geo.json', FILE_USE_INCLUDE_PATH);
+
+	$countries = json_decode($countries, true);
+
+
+for ($i = 0; $i < count($countries['features']); $i++)  {
+	if ($countries['features'][$i]['properties']['iso_a3'] == $_REQUEST['codeUpper']) {
+		$countryGEOJson = $countries['features'][$i];
+		break;
+	} else {
+		$countryGEOJson = 'country not found';
+	}
+}
+
+  $output['data']['countryGeoJSON'] = $countryGEOJson;
+
 	echo json_encode($output); 
 
 ?>

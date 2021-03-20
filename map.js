@@ -1,44 +1,28 @@
 
 //Render of the Map
 
+var mymap = L.map('mapid').fitWorld();
 
-	var mymap = L.map('mapid').setView([51.505, -0.09], 13);
 
-	var CyclOSM = L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
-	maxZoom: 20,
-	attribution: '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(mymap);
 
-	L.marker([51.5, -0.09]).addTo(mymap)
-		.bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
+var CyclOSM = L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+            maxZoom: 20,
+            
+            attribution: '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mymap);
 
 	
 
-	L.polygon([
-		[51.509, -0.08],
-		[51.503, -0.06],
-		[51.51, -0.047]
-	]).addTo(mymap).bindPopup("I am a polygon.");
+	
 
-
-	var popup = L.popup();
-
-	// Countries Info 
-
-    $('#viewcountry').click(function() {
-        let country = $('#country').val().toLowerCase();
-        
-        
-    
-        console.log(country);
-    
-    
+    function getCountry(country){
         $.ajax({
             url: "./php/country.php",
             type: 'POST',
             dataType: 'json',
             data:{
-                code: country
+                code: country,
+                codeUpper: country.toUpperCase()
             },
             
             success: function(result) {
@@ -47,22 +31,50 @@
     
                 if (result.status.name == "ok") {
 
+                    
+
                     let weather = `${result['data']['weather']['weather'][0]['description']}. Current temperature is 
                     ${Math.floor(result['data']['weather']['main']['temp'] - 273)} &#8451; `
 
     
-                   var info = ` <h2>${result['data']['name']}</h2>
-                   <img style="width:100px; height: 100px;" alt="${result['data']['name']}" src="${result['data']['flag']}" /><br />
+                   var info = `<div> <h2>${result['data']['name']}</h2>
+                   <br />
                   Capital City: ${result['data']['capital']}<br />
                    Population: ${result['data']['population']}<br />
                    Currency: ${result['data']['currencies'][0]['name']}  ${result['data']['currencies'][0]['symbol']}. 
                     1 US Dollar is equal to ${result['data']['rate']['rates'][result['data']['currencies'][0]['code']]} ${result['data']['currencies'][0]['code']}<br />
                    Current Weather: ${weather} <br />
                    Wikipedia Link: <a target="_blank" href="https://en.wikipedia.org/wiki/${result['data']['name']}">
-                    ${result['data']['name']}</a>
+                    ${result['data']['name']}</a></div>
                     `
                         
     
+
+                    let countrygeoJson = result['data']['countryGeoJSON'];
+
+
+                    let countryFeature = L.geoJSON(countrygeoJson).addTo(mymap);
+                         let countryCenter = countryFeature.getBounds().getCenter();
+                         console.log(countryCenter);
+                         mymap.fitBounds(countryFeature.getBounds());
+                         
+                         var flagicon = L.icon({
+                            iconUrl: `${result['data']['flag']}`,
+                            iconSize: [40, 40],
+                            iconAnchor: [22, 94],
+                            popupAnchor: [-3, -76]
+                        });
+                         
+
+                        //  var flagicon = L.Icon({
+                        //     iconUrl: `${result['data']['flag']}`,
+                        //     iconSize: [25, 25]
+                            
+                        // });
+
+                         //, {icon: flagicon} , {icon: flagicon}
+                         L.marker(countryCenter, {icon: flagicon}).bindPopup(info).addTo(mymap);
+                    
                
 
             
@@ -76,94 +88,85 @@
                 
             }
         }); 
-    
-    
-    });
 
-    var infoAvail;
-    function getInfo(){
-        console.log(info);
-        infoAvail = info;
-    }
-
-    getInfo();
+    };
 
 
 
+    //country user is in when page initialy load
+	
 
-    //Countries GeoJson
+	$( window ).load(function() {
+        // Run code
 
+       
+
+
+        var options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          };
+          
+          function success(pos) {
+            var crd = pos.coords;
+            var lat = pos.coords.latitude;
+            var lng = pos.coords.longitude;
+
+            mymap.setView([lat, lng], 6);
+
+            
+
+            const currentCountryReq = async () => {
+                const response = await fetch(`https://api.opencagedata.com/geocode/v1/json?key=40ef6af111324d61af3e91ce43af7b96&q=${lat}%2C${lng}&pretty=1`);
+                const myJson = await response.json(); //extract JSON from the http response
+                // do something with myJson
+                //console.log(myJson);
+                let countryAlpha3 = myJson['results'][0]['components']['ISO_3166-1_alpha-3'].toLowerCase();
+                
+
+                getCountry(countryAlpha3);
+              }
+
+              currentCountryReq();
+              
+              
+             
+               
+          
+            
+          }
+            
+          
+          function error(err) {
+            console.warn(`ERROR(${err.code}): ${err.message}`);
+          }
+          
+          navigator.geolocation.getCurrentPosition(success, error, options);
+      });
+
+
+	
+
+	// Countries Info  when button is pressed
 
     $('#viewcountry').click(function() {
-        let country = $('#country').val();
+        let country = $('#country').val().toLowerCase();
+
         
         
+        
     
-        console.log(country);
     
+        getCountry(country);
     
-        $.ajax({
-            url: "php/borders.php",
-            type: 'POST',
-            dataType: 'json',
-            
-            success: function(result) {
-    
-                
-    
-                if (result.status.name == "ok") {
-    
-                   let allCountries = result.data['features']
-                   for(let i = 0; i < allCountries.length; i++){
-                       
-                       if(allCountries[i]['properties']['iso_a3'] == country){
-                        
-                        console.log(allCountries[i]);
-
-
-                         //bounds for 
-
-                         let countryFeature = L.geoJSON(allCountries[i]).addTo(mymap);
-                         let countryCenter = countryFeature.getBounds().getCenter();
-                         console.log(countryCenter);
-                         mymap.fitBounds(countryFeature.getBounds());
-                         var popup = L.popup()
-                         .setLatLng(countryCenter)
-                         .setContent(info)
-                         .openOn(mymap);
-
-
-
-                           //marker cluster icon copied from leaflet
-                           /*
-                           var greenIcon = L.icon({
-    iconUrl: 'leaf-green.png',
-    shadowUrl: 'leaf-shadow.png',
-
-    iconSize:     [38, 95], // size of the icon
-    shadowSize:   [50, 64], // size of the shadow
-    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-    shadowAnchor: [4, 62],  // the same for the shadow
-    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-});
-
-                           L.marker([51.5, -0.09], {icon: greenIcon}).addTo(map);
-                           */
-
-                       }
-                   }
-                        
-    
-                  
-    
-                }
-            
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                // your error code
-                
-            }
-        }); 
-    
+        
     
     });
+
+    
+
+
+
+
+   
