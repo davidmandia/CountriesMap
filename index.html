@@ -15,17 +15,18 @@
 
     <link rel="stylesheet" href="./style.css" />
     <style>
-        #mapid{
-            width: 100%;
-        }
+        
     </style>
 
 </head>
 <body>
-    <h1>dio porco</h1>
+    
     <header>
+
         <nav class="nav justify-content-center">
+            
             <select id='country'>
+                <option value="" disabled selected hidden>Please select a country</option>
                 <option value="AFG">Afghanistan</option>
                 <option value="ALA">Åland Islands</option>
                 <option value="ALB">Albania</option>
@@ -279,11 +280,16 @@
     
              <button class="btn btn-primary" id='viewcountry'>View Country</button>
           </nav>
+    
+        
     </header>
 
 
 
-<div id="mapid" ></div>
+<div id="mapid" >
+
+    
+</div>
 <script src="map.js"></script>
 
 
