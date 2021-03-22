@@ -54,26 +54,25 @@ var CyclOSM = L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}
 
 
                     let countryFeature = L.geoJSON(countrygeoJson).addTo(mymap);
-                         let countryCenter = countryFeature.getBounds().getCenter();
+                        let bounds = countryFeature.getBounds();
+                         let countryCenter = bounds.getCenter();
                          console.log(countryCenter);
-                         mymap.fitBounds(countryFeature.getBounds());
+                         mymap.fitBounds(bounds);
+                         console.log(info);
                          
-                         var flagicon = L.icon({
-                            iconUrl: `${result['data']['flag']}`,
-                            iconSize: [40, 40],
-                            iconAnchor: [22, 94],
-                            popupAnchor: [-3, -76]
-                        });
-                         
-
-                        //  var flagicon = L.Icon({
+                        //  var flagicon = L.icon({
                         //     iconUrl: `${result['data']['flag']}`,
-                        //     iconSize: [25, 25]
-                            
+                        //     iconSize: [32, 32],
+                        //     iconAnchor: [16,32]
                         // });
+                         
+                        
 
-                         //, {icon: flagicon} , {icon: flagicon}
-                         L.marker(countryCenter, {icon: flagicon}).bindPopup(info).addTo(mymap);
+                         
+                       L.marker(countryCenter, {icon: L.icon({
+                           iconUrl: `${result['data']['flag']}`,
+                           iconSize: [32, 32] })})
+                           .bindPopup(info).addTo(mymap);
                     
                
 
