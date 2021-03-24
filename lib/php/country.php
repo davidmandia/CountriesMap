@@ -19,6 +19,7 @@ $url = 'https://restcountries.eu/rest/v2/alpha/' .$_REQUEST['code'];
 	$output['status']['returnedIn'] = (microtime(true) - $executionStartTime) / 1000 . " ms";
 	$output['data'] = $decode;
 
+	
 
 	//data needed for second and third API
 	$cityweather = $output['data']['capital'];
@@ -68,14 +69,16 @@ $url = 'https://restcountries.eu/rest/v2/alpha/' .$_REQUEST['code'];
 	$output['data']['weather'] = $responseWeather;
 	$output['data']['rate'] = $responseExchange;
 
-	header('Content-Type: application/json; charset=UTF-8');
+	
+
+	
 
 
 	//Api to file for the right country geoJson data
 
 	
 
-	$countries = file_get_contents('../countryBorders.geo.json', FILE_USE_INCLUDE_PATH);
+	$countries = file_get_contents('../../countryBorders.geo.json', FILE_USE_INCLUDE_PATH);
 
 	$countries = json_decode($countries, true);
 
@@ -91,6 +94,9 @@ for ($i = 0; $i < count($countries['features']); $i++)  {
 
   $output['data']['countryGeoJSON'] = $countryGEOJson;
 
-	echo json_encode($output); 
+	//echo json_encode($output); 
 
+	header('Content-Type: application/json; charset=UTF-8');
+
+	echo json_encode($output);
 ?>
