@@ -23,4 +23,9 @@ body {
 
 .infoPopUp{
   max-width: 100%;
+  z-index: 3;
+}
+
+.leaflet-popup-content-wrapper{
+  z-index: 4;
 }

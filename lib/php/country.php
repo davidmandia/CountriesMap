@@ -23,6 +23,7 @@ $url = 'https://restcountries.eu/rest/v2/alpha/' .$_REQUEST['code'];
 
 	//data needed for second and third API
 	$cityweather = $output['data']['capital'];
+	$capital = $output['data']['capital'];
 	$currencyCode = $output['data']['currencies'][0]['code'];
 
 	//second API for the weather in the capital
@@ -68,6 +69,24 @@ $url = 'https://restcountries.eu/rest/v2/alpha/' .$_REQUEST['code'];
 
 	$output['data']['weather'] = $responseWeather;
 	$output['data']['rate'] = $responseExchange;
+
+
+	//API to diplay marker in capital and not in center because for some colonial countries such as france was not good
+
+	$capital ='https://api.opencagedata.com/geocode/v1/json?key=40ef6af111324d61af3e91ce43af7b96&j&q='.$capital .'&pretty=1&no_annotations=1';
+  $chCapital = curl_init();
+	curl_setopt($chCapital, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($chCapital, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($chCapital, CURLOPT_URL,$capital);
+
+	$capital_loc=curl_exec($chCapital);
+
+	curl_close($chCapital);
+
+	$responseCapital = json_decode($capital_loc,true);
+
+
+	$output['data']['capitalLocation'] = $responseCapital;
 
 	
 
