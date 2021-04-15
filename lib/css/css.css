@@ -20,3 +20,7 @@ body {
   right: 25%;
   z-index: 2;
 }
+
+.infoPopUp{
+  max-width: 100%;
+}
